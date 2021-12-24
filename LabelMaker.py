@@ -3,52 +3,54 @@ import PySimpleGUI as sg
 from PIL import Image, ImageFont, ImageDraw
 import io
 
-#Select output location. Filename based on first line of input.
-#Paste the four lines of text into the input text box.
-# Press make label button to save the file.
-# Maybe display a preview of the label. Indicate to the user that the label is saved.
-##############################################################################
 
-# Label image setup
 font = ImageFont.truetype("PTSerif-Regular.ttf", 50)
-# blank image
-im = Image.new(mode="RGB", size = (1920,1280), color = (255,255,255))
-# editable object representing image.
-editable_image = ImageDraw.Draw(im)
 
-# Setting up blank thumbnail for window launch
-im_thumbnail = im.copy()
+# Blank image so the thumbnail portion of the GUI is not empty initially.
+im_thumbnail = Image.new(mode="RGB", size = (1920,1280), color = (255,255,255))
 im_thumbnail.thumbnail((320, 160))
-temp = io.BytesIO()
-im_thumbnail.save(temp, format = "png")
+temp = io.BytesIO() # used to hold the image data temporarily without saving it to a file.
+im_thumbnail.save(temp, format="PNG")
 
 # GUI setup
 sg.theme('Dark2')
 
 layout = [
-    [sg.Text('Enter address info')],
-    [sg.Multiline(size = (30,5), key='textbox'), sg.Image(key='labelpic')],
-    [sg.Button('Make label')]
+    [sg.Text('Enter address info:')],
+    [sg.Multiline(size = (30,5), key='textbox'), sg.Image(temp.getvalue(), key='labelpic')],
+    [sg.Button('Make label'), sg.Text('', key='outputindicator')]
 ]
 
 window = sg.Window('Shipping Label Maker', layout)
 
+
 # Event loop
 while True:
-    event, values = window.read()
+    event, values = window.read(timeout=100)
     if event == sg.WIN_CLOSED or event == 'Exit':
         break
-    window['labelpic'].update(temp.getvalue())
-    print(event, values)
-    if event == "Make label":
-        editable_image.text((500,500), values['textbox'], font = font, fill=(0,0,0,255), spacing=20)
-        im_thumbnail = im.copy()
-        im_thumbnail.thumbnail((320, 160))
-        temp = io.BytesIO()
-        im_thumbnail.save(temp, format = "PNG")
+    if event != '__TIMEOUT__':
+        print(event, values)
 
-        #window['labelpic'].update(temp.getvalue())
-        im.save("test.png")
+    # Making a preview thumbnail.
+    # Create a blank image, make it editable, stick the text from the textbox at the moment on the image,
+    # Make a thumbnail out of the image.
+    im = Image.new(mode="RGB", size = (1920,1280), color = (255,255,255))
+    editable_im = ImageDraw.Draw(im)
+    editable_im.text((500,500), values['textbox'], font = font, fill=(0,0,0,255), spacing=20)
+    im_thumbnail = im.copy()
+    im_thumbnail.thumbnail((320, 160))
+    temp = io.BytesIO()
+    im_thumbnail.save(temp, format = "PNG")
+
+    # update the window to show the new preview.
+    window['labelpic'].update(temp.getvalue())
+
+    if event == "Make label":
+        address_info = values['textbox'].split('\n')
+        print(address_info[0])
+        im.save(address_info[0] + '.png') # Make the filename the first line. Typically that's the recipient's name.
+        window['outputindicator'].update("Saved " + address_info[0] + ".png")
 
 
 window.close()
