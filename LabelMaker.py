@@ -1,5 +1,4 @@
 import PySimpleGUI as sg
-#import os, sys
 from PIL import Image, ImageFont, ImageDraw
 import io
 import os
@@ -47,9 +46,9 @@ while True:
     # update the window to show the new preview.
     window['labelpic'].update(temp.getvalue())
 
+    # Attempt to save the label.
     if event == "Make label":
         address_info = values['textbox'].split('\n')
-        print(address_info[0])
         if values['browse'] == '':
             window['outputindicator'].update("Select a save location!")
         else:
