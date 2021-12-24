@@ -2,6 +2,7 @@ import PySimpleGUI as sg
 #import os, sys
 from PIL import Image, ImageFont, ImageDraw
 import io
+import os
 
 
 font = ImageFont.truetype("PTSerif-Regular.ttf", 50)
@@ -18,7 +19,7 @@ sg.theme('Dark2')
 layout = [
     [sg.Text('Enter address info:')],
     [sg.Multiline(size = (30,5), key='textbox'), sg.Image(temp.getvalue(), key='labelpic')],
-    [sg.Button('Make label'), sg.Text('', key='outputindicator')]
+    [sg.Button('Make label'), sg.FolderBrowse(key='browse', button_text='Choose save location'), sg.Text('', key='outputindicator')]
 ]
 
 window = sg.Window('Shipping Label Maker', layout)
@@ -49,8 +50,12 @@ while True:
     if event == "Make label":
         address_info = values['textbox'].split('\n')
         print(address_info[0])
-        im.save(address_info[0] + '.png') # Make the filename the first line. Typically that's the recipient's name.
-        window['outputindicator'].update("Saved " + address_info[0] + ".png")
+        if values['browse'] == '':
+            window['outputindicator'].update("Select a save location!")
+        else:
+            #TODO Check for potential duplicates and change file name.
+            im.save(values['browse'] + os.path.sep + address_info[0] + '.png') # Make the filename the first line. Typically that's the recipient's name.
+            window['outputindicator'].update("Saved " + address_info[0] + ".png")
 
 
 window.close()
