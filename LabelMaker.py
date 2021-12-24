@@ -1,5 +1,5 @@
 import PySimpleGUI as sg
-import os, sys
+#import os, sys
 from PIL import Image, ImageFont, ImageDraw
 import io
 
@@ -10,7 +10,7 @@ import io
 ##############################################################################
 
 # Label image setup
-font = ImageFont.truetype("PTSerif-Regular.ttf", 60)
+font = ImageFont.truetype("PTSerif-Regular.ttf", 50)
 # blank image
 im = Image.new(mode="RGB", size = (1920,1280), color = (255,255,255))
 # editable object representing image.
@@ -41,7 +41,7 @@ while True:
     window['labelpic'].update(temp.getvalue())
     print(event, values)
     if event == "Make label":
-        editable_image.text((500,500), values['textbox'], font = font, fill=(0,0,0,255), spacing=30)
+        editable_image.text((500,500), values['textbox'], font = font, fill=(0,0,0,255), spacing=20)
         im_thumbnail = im.copy()
         im_thumbnail.thumbnail((320, 160))
         temp = io.BytesIO()
