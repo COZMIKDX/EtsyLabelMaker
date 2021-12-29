@@ -14,28 +14,73 @@ import os
 
 font = ImageFont.truetype("PTSerif-Regular.ttf", 50)
 
+## Image stuff
+thumbnail_width = 320
+thumbnail_height = 160
+
 # Blank image so the thumbnail portion of the GUI is not empty initially.
 im_thumbnail = Image.new(mode="RGB", size = (1920,1280), color = (255,255,255))
 im_thumbnail.thumbnail((320, 160))
 temp = io.BytesIO() # used to hold the image data temporarily without saving it to a file.
 im_thumbnail.save(temp, format="PNG")
 
+
+## Address stuff
+class Address:
+    def __init__(self, info, x, y):
+        self.info = info.split('\n')
+        self.x = x
+        self.y = y
+
+
+
+address_list = []
+
+
+def add_address(info, x, y):
+    global address_list
+    address_list.append(Address(info, x, y))
+
+# TODO: figure out indexing the addresses in the address list. This should also be useful for displaying and editing.
+def delete_address(index):
+    global address_list
+    address_list.pop(index)
+
+
+def list_addresses():
+    global address_list
+    address_first_lines = [entry.info[0] for entry in address_list]
+    return address_first_lines
+
+
+def load_address():
+    pass
+
+
 # GUI setup
 sg.theme('Dark2')
 
-layout = [
+col0 = [
     [sg.Text('Enter address info:')],
-    [sg.Multiline(size = (30,5), key='textbox'), sg.Image(temp.getvalue(), key='labelpic')],
+    [sg.Multiline(size=(30,5), key='textbox')],
+    [sg.DropDown(key='address list',size=(30,5), values=[], readonly=True)],
     [sg.Text('Start position:')],
     [sg.Text('x:'), sg.InputText(key='x_coord', size=(8,1), default_text='0'), sg.Text('y:'), sg.InputText(key='y_coord', size=(8,1), default_text='0')],
-    [sg.Button('Save address'), sg.Button('Make label'), sg.FolderBrowse(key='browse', button_text='Choose save location')],
+    [sg.Button('Save new address'), sg.Button('Save as edit', disabled=True), sg.Button('Delete Address')],
+    [sg.Button('Make label'), sg.FolderBrowse(key='browse', button_text='Choose save location')],
     [sg.Text('Status: '), sg.Text('', key='outputindicator')]
 ]
+col1 = [[sg.Image(temp.getvalue(), key='labelpic')]]
+
+layout = [[
+    sg.Column(col0), sg.Column(col1)
+]]
 
 window = sg.Window('Shipping Label Maker', layout)
 
 x_coord = 0
 y_coord = 0
+
 
 def coordinate_error_check(x, y):
     global window
@@ -62,6 +107,7 @@ def coordinate_error_check(x, y):
 
     return coord_check_passed
 
+
 def coordinate_assign(x, y):
     global x_coord
     global y_coord
@@ -72,12 +118,16 @@ def coordinate_assign(x, y):
         x_coord = 0
         y_coord = 0
 
+
 def thumbnail_preview(im):
     im_thumbnail = im.copy()
     im_thumbnail.thumbnail((320, 160))
     temp = io.BytesIO()
     im_thumbnail.save(temp, format = "PNG")
     return temp
+
+
+
 
 # Event loop
 while True:
@@ -106,9 +156,13 @@ while True:
         if values['browse'] == '':
             window['outputindicator'].update("Select a save location!")
         else:
-            #TODO Check for potential duplicates and change file name.
+            # TODO Check for potential duplicates and change file name.
             im.save(values['browse'] + os.path.sep + address_info[0] + '.png') # Make the filename the first line. Typically that's the recipient's name.
             window['outputindicator'].update("Saved " + address_info[0] + ".png")
+    if event == "Save new address":
+        add_address(values['textbox'], x_coord, y_coord)
+        print(address_list)
+        window['address list'].update(values=list_addresses())
 
 
 window.close()
