@@ -5,8 +5,8 @@ import io
 font = ImageFont.truetype("PTSerif-Regular.ttf", 50)
 
 ## Image stuff
-thumbnail_width = 320
-thumbnail_height = 160
+thumbnail_width = 420
+thumbnail_height = 280
 image_height = 1280
 image_width = 1920
 bg_color = (255, 255, 255)
@@ -48,9 +48,9 @@ col0 = [
     [sg.Text('Enter address info:')],
     [sg.Multiline(size=(30, 5), key='textbox')],
     [sg.Text('Start position:')],
-    [sg.Text('x:'), sg.InputText(key='x_coords', size=(8, 1), default_text='0'), sg.Text('y:')],
-    [sg.Slider(key='x_coord', range=(0, image_width), orientation='h', size=(26, 20), default_value=25)],
-    [sg.Slider(key='y_coord', range=(0, image_height), orientation='h', size=(26, 20), default_value=25)],
+
+    [sg.Text("X:", size=(2,1)), sg.Slider(key='x_coord', range=(0, image_width), orientation='h', size=(26, 20), default_value=25)],
+    [sg.Text("Y:", size=(2,1)), sg.Slider(key='y_coord', range=(0, image_height), orientation='h', size=(26, 20), default_value=25)],
     [sg.Button('Add', key='AddAddress'), sg.Input(key='FileSave', enable_events=True, visible=False, disabled=True),
      sg.FileSaveAs(button_text='Save', file_types=(("Image Files", "*.png"),))],
     [sg.Text('Info: '), sg.Text('', key='outputindicator')]
@@ -86,7 +86,7 @@ def update_image():
 
 def thumbnail_preview(im):
     im_thumbnail = im.copy()
-    im_thumbnail.thumbnail((320, 160))
+    im_thumbnail.thumbnail((thumbnail_width, thumbnail_width))
     temp = io.BytesIO()
     im_thumbnail.save(temp, format="PNG")
     return temp
