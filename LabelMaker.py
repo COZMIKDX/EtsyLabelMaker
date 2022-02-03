@@ -13,7 +13,7 @@ bg_color = (255, 255, 255)
 
 # Blank image so the thumbnail portion of the GUI is not empty initially.
 im_thumbnail = Image.new(mode="RGB", size=(image_width, image_height), color=bg_color)
-im_thumbnail.thumbnail((320, 160))
+im_thumbnail.thumbnail((thumbnail_width, thumbnail_height))
 temp = io.BytesIO()  # used to hold the image data temporarily without saving it to a file.
 im_thumbnail.save(temp, format="PNG")
 
